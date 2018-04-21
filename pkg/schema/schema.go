@@ -1,8 +1,9 @@
 package schema
 
 type MyUrl struct {
-	HostPort  string `json:"h"`
-	PathQuery string `json:"p"`
+	// Host host or host:port
+	Host      string `json:"h"`
+	PathQuery string `json:"pq"`
 }
 
 // UpdateMyUrl used in bulk update

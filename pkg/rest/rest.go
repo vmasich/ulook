@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var log = capnslog.NewPackageLogger("github.com/vmasich/dynweb/pkg/rest", "rest")
+var log = capnslog.NewPackageLogger("bitbucket.org/vmasych/urllookup/pkg/rest", "rest")
 
 type Rest struct {
 	Model model.MyModel
@@ -36,7 +36,7 @@ func (r *Rest) Run() {
 
 func (r *Rest) CheckURL(c *gin.Context) {
 	url := schema.MyUrl{
-		HostPort:  c.Param("hostport"),
+		Host:      c.Param("hostport"),
 		PathQuery: c.Param("pathquery"),
 	}
 	code := http.StatusNotFound
