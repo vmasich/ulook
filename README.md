@@ -25,42 +25,75 @@ The service must be containerized.
 
 Give some thought to the following:
 
-The size of the URL list could grow infinitely, how might you
+1. The size of the URL list could grow infinitely, how might you
 scale this beyond the memory capacity of this VM? Bonus if you
 implement this.
 
-The number of requests may exceed the capacity of this VM, how might
+2. The number of requests may exceed the capacity of this VM, how might
 you solve that? Bonus if you implement this.
 
-What are some strategies you might use to update the service with new
+3. What are some strategies you might use to update the service with new
 URLs? Updates may be as much as 5 thousand URLs a day with updates
 arriving every 10 minutes.
 
-## Achitecture
+## Architecture
 
 ### The implementation uses microservices architecture.
 
 Lookup services uses following packages:
 
-- BoltDb https://github.com/boltdb/bolt. It is being used as storage entine in etc, InfluxDb
-- NATS messageing system nats.io
-- Gin HTTP framework
+- BoltDb https://github.com/boltdb/bolt. It is being used as storage
+  engine in ETCD, InfluxDb, Prometheus
+
+- NATS messaging system https://nats.io
+
+- Gin HTTP framework (relatively new framework with Go Context package support)
 
 ### The components of a the URL Lookup service are
 
-- HTTP REST frontend
+- HTTP REST fronted
+
 - NATS messaging system
+
 - BoltStore - distributed URL data store.
 
 The intended setup:
 
-*HTTP REST frontend* should be run as a multiple instances, depending on requirements behind Load Balancer ( Kubernetes, NGNX, AWS Elastic LB, etc. )
+*HTTP REST frontend* should be run as a multiple instances, depending
+ on requirements behind Load Balancer ( Kubernetes, NGNX, AWS Elastic
+ LB, etc. )
 
-*NATS messaging* system should be run as a clustered setup on the low latency network
+*NATS messaging* system should be run as a clustered setup on the low
+ latency network
 
-*Boltstore* instances shoould be run as a sharded setup. each instance serves a range of URLs , currently defined a a range or a pattern, i.e. for 2 instances  [0-k] for the first,
-[l-zZ]* for the second. In production implementation the filters can be adaptive,
-the data on the nodes can be replicated, split, or merged.
+*Boltstore* instances should be run as a sharded setup. each instance
+serves a range of URLs , defined as a range or a pattern, i.e. for 2
+instances [0-k] for the first, [l-zZ]* for the second. In production
+implementation the filters can be adaptive, the data on the nodes can
+be replicated, split, or merged.  the current max size of the node is
+1TB
+
+- The implemented architecture is horizontally scalable and addresses
+  pp. 1 and 2 in the problem statement.
+
+- It is designed with a potential for the future
+  optimization. Additional *Data Store types* can be added, for
+  example a *Cache with Hit counters* for the most repeated lookups,
+  and "Blum Filters" which will be even faster than Cache.
+
+- The *Cache Nodes* can be prepared as a background process using data
+  from the Data Store, or on the specialized nodes for the counters
+
+- No architectural changes are required for that, because the response
+  from the fastest node will be returned to the user.
+
+- Another optimization should be implemented in the Data
+  Store. Current internal structure is flat, so buckets are in the
+  same level, the optimized implementation will use hierarchical
+  structure with nested buckets, following the Domain Names shema. It
+  will speed up the lookups.
+
+
 
 
 
