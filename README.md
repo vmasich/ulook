@@ -57,7 +57,18 @@ Lookup services uses following packages:
 
 - BoltStore - distributed URL data store.
 
-The intended setup:
+
+### Alternatives and the rationalie:
+
+Alternatively, some existing database can be used as a backend.
+
+The good candidates can be DynamoDB, Dgraph, CockroachDB, Cassandra,
+etc.
+
+However implementing something from scratch is a fun - and it is not
+that complex!
+
+### The intended setup:
 
 *HTTP REST frontend* should be run as a multiple instances, depending
  on requirements behind Load Balancer ( Kubernetes, NGNX, AWS Elastic
@@ -90,12 +101,52 @@ be replicated, split, or merged.  the current max size of the node is
 - Another optimization should be implemented in the Data
   Store. Current internal structure is flat, so buckets are in the
   same level, the optimized implementation will use hierarchical
-  structure with nested buckets, following the Domain Names schema. It
-  will speed up the lookups.
+  structure with nested buckets, following the Domain Names levels. It
+  will speed up the lookups. It is not implemented because current
+  implementation is already beyond the scope of this "staightforward"
+  exersize.
 
 - To address pp. 3 in the problem statement, the REST API supports
   bulk URL updates.  However 5000 URL a day  sounds too little -
   may be 5000 per request?
 
+
+## API Reference
+
+### URL Lookup
+```
+GET /urlinfo/1/:hostname/:path
+```
+#### Parameters
+
+hostname: hostname and port
+
+path: original path and query string
+
+#### Payload
+
+No payload
+
+#### Response
+
+HTTP status codes
+
+200: URL found
+
+404: URL not found
+
+504: Timeout
+
+- There is no Response Body to reduce apount of data transferred
+
+### Bulk URL update
+```
+POST /urlinfo/bulkupdate
+```
+#### Parameters
+
+None
+
+#### Payload example
 
 
