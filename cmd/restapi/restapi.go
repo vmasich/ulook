@@ -4,28 +4,39 @@ import (
 	"os"
 	"os/signal"
 
+	"bitbucket.org/vmasych/urllookup/pkg/conn/nats/mqsvc"
 	"bitbucket.org/vmasych/urllookup/pkg/rest"
-	"bitbucket.org/vmasych/urllookup/pkg/store/mockstore"
 	"github.com/coreos/pkg/capnslog"
+	"github.com/nats-io/nats"
 )
 
 var log = capnslog.NewPackageLogger(
-	"bitbucket.org/vmasych/urllookup/cmd/restapi/main", "restmain")
+	"bitbucket.org/vmasych/urllookup/cmd/restapi/main", "restapi")
 
 func main() {
 
-	db := &mockstore.MockStore{}
-	db.Open()
+	capnslog.SetGlobalLogLevel(capnslog.DEBUG)
+
+	// db := &mockstore.MockStore{}
+	// db.Open()
+	restc := &mqsvc.Nats{
+		URL: nats.DefaultURL,
+	}
+
+	if err := restc.ConnectRest(); err != nil {
+		log.Fatalf("cannot connect to NATS, %v", err)
+	}
 
 	defer func() {
 		log.Infof("closing")
-		db.Close()
+		restc.Close()
+		//		db.Close()
 	}()
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 
-	rest := rest.New(db)
+	rest := rest.New(restc)
 	go func() {
 		log.Infof("starting api server")
 		rest.Run()

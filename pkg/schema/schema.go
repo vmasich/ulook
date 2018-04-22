@@ -1,13 +1,13 @@
 package schema
 
-type MyUrl struct {
+type LURL struct {
 	// Host host or host:port
 	Host      string `json:"h"`
 	PathQuery string `json:"pq"`
 }
 
-// UpdateMyUrl used in bulk update
-type UpdateMyUrl struct {
+// UpdateURL used in bulk update
+type UpdateURL struct {
 	Operation string `json:"op"`
-	MyUrl
+	LURL
 }

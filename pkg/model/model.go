@@ -3,14 +3,14 @@ package model
 import "bitbucket.org/vmasych/urllookup/pkg/schema"
 
 type URLChecker interface {
-	CheckURL(url schema.MyUrl) bool
+	CheckURL(url schema.LURL) (bool, error)
 }
 
 type URLUpdater interface {
-	UpdateURLs(urls []schema.UpdateMyUrl) bool
+	UpdateURLs(urls []schema.UpdateURL) error
 }
 
-type MyModel interface {
+type Operations interface {
 	URLChecker
 	URLUpdater
 }

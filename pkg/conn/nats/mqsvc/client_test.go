@@ -2,6 +2,7 @@ package mqsvc
 
 import (
 	"testing"
+	"time"
 
 	"bitbucket.org/vmasych/urllookup/pkg/schema"
 	"bitbucket.org/vmasych/urllookup/pkg/store/mockstore"
@@ -16,28 +17,24 @@ var (
 	backend = &Nats{
 		URL: nats.DefaultURL,
 	}
-	ready = make(chan interface{})
+	ready    = make(chan interface{})
+	complete = make(chan interface{})
 )
 
-func printMsg(m *nats.Msg, i int) {
-	log.Printf("[#%d] Received on [%s]: '%s'\n", i, m.Subject, string(m.Data))
-}
-
 func init() {
+	db := &mockstore.MockStore{}
+	err := backend.ConnectStore(db)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	go func() {
-		db := &mockstore.MockStore{}
-		err := backend.ConnectStore(db)
-		if err != nil {
-			log.Fatal(err)
-		}
-
 		i := 0
-		backend.EConn.Subscribe("lookup", func(subj, reply string, url *schema.MyUrl) {
+		backend.EConn.Subscribe("lookup", func(subj, reply string, url *schema.LURL) {
 			i++
-			//			printMsg(msg, i)
-			check := backend.Backend.CheckURL(*url)
-			backend.EConn.Publish(reply, check)
+			found, _ := backend.Backend.CheckURL(*url)
+
+			backend.EConn.Publish(reply, found)
 		})
 		backend.EConn.Flush()
 
@@ -45,7 +42,9 @@ func init() {
 			log.Fatal(err)
 		}
 		close(ready)
+
 	}()
+
 }
 
 func TestRestClient(t *testing.T) {
@@ -56,11 +55,12 @@ func TestRestClient(t *testing.T) {
 
 func TestRestCheck(t *testing.T) {
 	defer func() {
-		//		time.Sleep(time.Second)
+		time.Sleep(200 * time.Millisecond)
 	}()
+
 	<-ready
 
-	dt := []schema.MyUrl{
+	dt := []schema.LURL{
 		{"a.b.c1", "bum"},
 		{"a.b.c2", "rum"},
 		{"a.b.c3", "bum"},
@@ -73,10 +73,15 @@ func TestRestCheck(t *testing.T) {
 	}
 
 	for _, d := range dt {
-		go func(u schema.MyUrl) {
-			found := restc.CheckURL(u)
+		go func(u schema.LURL) {
+			found, _ := restc.CheckURL(u)
 			t.Log(u, found)
 		}(d)
 	}
+}
 
+func TestClose(t *testing.T) {
+
+	restc.Close()
+	backend.Close()
 }

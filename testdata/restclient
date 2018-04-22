@@ -1,0 +1,10 @@
+
+
+:basee=localhost:3333
+
+#
+:hostt=a.b.c8
+:patht=bbljldfsfds'?a=1
+GET http://:basee/urlinfo/1/:hostt/:patht
+#
+

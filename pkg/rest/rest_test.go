@@ -51,20 +51,20 @@ func TestUpdate(t *testing.T) {
 	//	t.Skip()
 	td := []struct {
 		status int
-		data   []schema.UpdateMyUrl
+		data   []schema.UpdateURL
 	}{
 		{
-			200, []schema.UpdateMyUrl{
-				{"+", schema.MyUrl{"a", "b"}},
-				{"+", schema.MyUrl{"c", "d"}},
-				{"-", schema.MyUrl{"l", "u"}},
+			200, []schema.UpdateURL{
+				{"+", schema.LURL{"a", "b"}},
+				{"+", schema.LURL{"c", "d"}},
+				{"-", schema.LURL{"l", "u"}},
 			},
 		},
 	}
 	for i, d := range td {
 		body, err := json.Marshal(d.data)
 		resp, err := http.Post(
-			fmt.Sprintf("%s/urlinfo/1/", baseUrl),
+			fmt.Sprintf("%s/urlinfo/bulkupdate", baseUrl),
 			"application/json",
 			bytes.NewBuffer(body),
 		)

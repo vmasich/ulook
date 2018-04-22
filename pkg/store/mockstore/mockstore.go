@@ -12,18 +12,18 @@ var log = capnslog.NewPackageLogger(
 type MockStore struct {
 }
 
-func (s *MockStore) CheckURL(url schema.MyUrl) bool {
-	log.Infof("CheckUrl %# v", url)
+func (s *MockStore) CheckURL(url schema.LURL) (bool, error) {
+	log.Debugf("CheckUrl %# v", url)
 	switch url.Host {
 	case "a", "a.b.c8":
-		return true
+		return true, nil
 	}
-	return false
+	return false, nil
 }
 
-func (s *MockStore) UpdateURLs(urls []schema.UpdateMyUrl) bool {
-	log.Infof("*** UpdateUrls %# v", pretty.Formatter(urls))
-	return true
+func (s *MockStore) UpdateURLs(urls []schema.UpdateURL) error {
+	log.Debugf("*** UpdateUrls %# v", pretty.Formatter(urls))
+	return nil
 }
 
 func (s *MockStore) Open() error {

@@ -34,7 +34,7 @@ func (b *BoltStore) Close() {
 	log.Infof("CLOSE db \"%s\", err: %v", b.Path, err)
 }
 
-func (b *BoltStore) AddURL(url *schema.MyUrl) {
+func (b *BoltStore) AddURL(url *schema.LURL) {
 	log.Infof("ADD URL %+v", url)
 	b.Db.Update(func(tx *bolt.Tx) error {
 		bkt, err := tx.CreateBucketIfNotExists([]byte(url.Host))
@@ -49,7 +49,7 @@ func (b *BoltStore) AddURL(url *schema.MyUrl) {
 	})
 }
 
-func (b *BoltStore) RemoveURL(url *schema.MyUrl) {
+func (b *BoltStore) RemoveURL(url *schema.LURL) {
 	log.Infof("REMOVE URL %+v", url)
 
 	if err := b.Db.Update(func(tx *bolt.Tx) error {
@@ -72,7 +72,7 @@ func (b *BoltStore) RemoveURL(url *schema.MyUrl) {
 }
 
 // retrieve the data
-func (b *BoltStore) LookupURL(url *schema.MyUrl) (res bool) {
+func (b *BoltStore) LookupURL(url *schema.LURL) (res bool) {
 
 	log.Infof("LOOKUP URL %+v", url)
 	err := b.Db.View(func(tx *bolt.Tx) error {

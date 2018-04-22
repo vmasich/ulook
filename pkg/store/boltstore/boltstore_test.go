@@ -15,7 +15,7 @@ func TestOpen(t *testing.T) {
 }
 
 func TestAddUrl(t *testing.T) {
-	dt := []schema.MyUrl{
+	dt := []schema.LURL{
 		{"a.b.c", "bum"},
 		{"a.b.c", "rum"},
 		{"a.b.c", "bum"},
@@ -26,7 +26,7 @@ func TestAddUrl(t *testing.T) {
 }
 
 func TestLookupUrl(t *testing.T) {
-	dt := []schema.MyUrl{
+	dt := []schema.LURL{
 		{"a.b.c", "bum"},
 		{"a.b.c", "buc"},
 	}
@@ -41,7 +41,7 @@ func TestList(t *testing.T) {
 }
 
 func TestRemoveUrl(t *testing.T) {
-	dt := []schema.MyUrl{
+	dt := []schema.LURL{
 		{"a.b.c", "bum"},
 		{"a.b.c", "bum"},
 		{"a.b.c", "rum"},

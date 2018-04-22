@@ -12,20 +12,20 @@ import (
 var log = capnslog.NewPackageLogger("bitbucket.org/vmasych/urllookup/pkg/rest", "rest")
 
 type Rest struct {
-	Model model.MyModel
+	Model model.Operations
 	Eng   *gin.Engine
 }
 
-func New(m model.MyModel) *Rest {
+func New(m model.Operations) *Rest {
 	rest := &Rest{
 		Model: m,
 	}
 	rest.Eng = gin.Default()
 
-	v1 := rest.Eng.Group("urlinfo/1")
+	v1 := rest.Eng.Group("urlinfo/")
 
-	v1.GET("/:hostport/:pathquery", rest.CheckURL)
-	v1.POST("/", rest.UpdateURLs)
+	v1.GET("1/:hostport/:pathquery", rest.CheckURL)
+	v1.POST("bulkupdate", rest.UpdateURLs)
 
 	return rest
 }
@@ -35,20 +35,27 @@ func (r *Rest) Run() {
 }
 
 func (r *Rest) CheckURL(c *gin.Context) {
-	url := schema.MyUrl{
+	url := schema.LURL{
 		Host:      c.Param("hostport"),
 		PathQuery: c.Param("pathquery"),
 	}
 	code := http.StatusNotFound
-	if r.Model.CheckURL(url) {
+	msg := ""
+
+	ok, err := r.Model.CheckURL(url)
+	if ok {
 		code = http.StatusOK
 	}
+	if err != nil {
+		code = http.StatusGatewayTimeout
+		msg = err.Error()
+	}
+	c.String(code, msg)
 
-	c.String(code, "")
 }
 
 func (r *Rest) UpdateURLs(c *gin.Context) {
-	payload := []schema.UpdateMyUrl{}
+	payload := []schema.UpdateURL{}
 	if err := c.BindJSON(&payload); err != nil {
 		c.String(http.StatusBadRequest, "")
 		log.Errorf("%v", err)
