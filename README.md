@@ -90,10 +90,12 @@ be replicated, split, or merged.  the current max size of the node is
 - Another optimization should be implemented in the Data
   Store. Current internal structure is flat, so buckets are in the
   same level, the optimized implementation will use hierarchical
-  structure with nested buckets, following the Domain Names shema. It
+  structure with nested buckets, following the Domain Names schema. It
   will speed up the lookups.
 
-
+- To address pp. 3 in the problem statement, the REST API supports
+  bulk URL updates.  However 5000 URL a day  sounds too little -
+  may be 5000 per request?
 
 
 
