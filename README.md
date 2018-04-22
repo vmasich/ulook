@@ -1,5 +1,7 @@
 # URL lookup service
 
+## Problem statement
+
 We have an HTTP proxy that is scanning traffic looking for malware
 URLs. Before allowing HTTP connections to be made, this proxy asks a
 service that maintains several databases of malware URLs if the
@@ -33,3 +35,32 @@ you solve that? Bonus if you implement this.
 What are some strategies you might use to update the service with new
 URLs? Updates may be as much as 5 thousand URLs a day with updates
 arriving every 10 minutes.
+
+## Achitecture
+
+### The implementation uses microservices architecture.
+
+Lookup services uses following packages:
+
+- BoltDb https://github.com/boltdb/bolt. It is being used as storage entine in etc, InfluxDb
+- NATS messageing system nats.io
+- Gin HTTP framework
+
+### The components of a the URL Lookup service are
+
+- HTTP REST frontend
+- NATS messaging system
+- BoltStore - distributed URL data store.
+
+The intended setup:
+
+*HTTP REST frontend* should be run as a multiple instances, depending on requirements behind Load Balancer ( Kubernetes, NGNX, AWS Elastic LB, etc. )
+
+*NATS messaging* system should be run as a clustered setup on the low latency network
+
+*Boltstore* instances shoould be run as a sharded setup. each instance serves a range of URLs , currently defined a a range or a pattern, i.e. for 2 instances  [0-k] for the first,
+[l-zZ]* for the second. In production implementation the filters can be adaptive,
+the data on the nodes can be replicated, split, or merged.
+
+
+
