@@ -36,6 +36,15 @@ you solve that? Bonus if you implement this.
 URLs? Updates may be as much as 5 thousand URLs a day with updates
 arriving every 10 minutes.
 
+## Usage
+```sh
+docker network create mynet
+docker run --rm  --net mynet --name nats  nats
+docker run --rm  --net mynet --name dbstore urllookup /dbstore
+docker run --rm  -p 3333:3333 --net mynet --name restapi urllookup /restapi
+```
+
+
 ## Architecture
 
 ### The implementation uses microservices architecture.
@@ -58,7 +67,7 @@ Lookup services uses following packages:
 - BoltStore - distributed URL data store.
 
 
-### Alternatives and the rationalie:
+### Alternatives and the rationale:
 
 Alternatively, some existing database can be used as a backend.
 
@@ -90,7 +99,7 @@ be replicated, split, or merged.  the current max size of the node is
 - It is designed with a potential for the future
   optimization. Additional *Data Store types* can be added, for
   example a *Cache with Hit counters* for the most repeated lookups,
-  and "Blum Filters" which will be even faster than Cache.
+  and "Bloom Filters" which will be even faster than Cache.
 
 - The *Cache Nodes* can be prepared as a background process using data
   from the Data Store, or on the specialized nodes for the counters
