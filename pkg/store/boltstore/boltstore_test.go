@@ -7,7 +7,7 @@ import (
 )
 
 var db = &BoltStore{
-	Filename: "my.db",
+	Filename: "../../../dbstore.db",
 }
 
 func TestOpen(t *testing.T) {
@@ -15,7 +15,7 @@ func TestOpen(t *testing.T) {
 }
 
 func TestAddUrl(t *testing.T) {
-	dt := []schema.LURL{
+	dt := []schema.LookupURL{
 		{"a.b.c", "bum"},
 		{"a.b.c", "rum"},
 		{"a.b.c", "bum"},
@@ -26,12 +26,12 @@ func TestAddUrl(t *testing.T) {
 }
 
 func TestLookupUrl(t *testing.T) {
-	dt := []schema.LURL{
+	dt := []schema.LookupURL{
 		{"a.b.c", "bum"},
 		{"a.b.c", "buc"},
 	}
 	for _, d := range dt {
-		found := db.LookupURL(&d)
+		found, _ := db.CheckURL(d)
 		t.Log(found)
 	}
 }
@@ -41,7 +41,7 @@ func TestList(t *testing.T) {
 }
 
 func TestRemoveUrl(t *testing.T) {
-	dt := []schema.LURL{
+	dt := []schema.LookupURL{
 		{"a.b.c", "bum"},
 		{"a.b.c", "bum"},
 		{"a.b.c", "rum"},

@@ -6,7 +6,8 @@ import (
 )
 
 type Config struct {
-	NatsURL string
+	NatsURL    string
+	DbFileName string
 }
 
 var conf Config

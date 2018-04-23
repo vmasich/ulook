@@ -30,9 +30,9 @@ func init() {
 
 	go func() {
 		i := 0
-		backend.EConn.Subscribe("lookup", func(subj, reply string, url *schema.LURL) {
+		backend.EConn.Subscribe("lookup", func(subj, reply string, url *schema.LookupURL) {
 			i++
-			found, _ := backend.Backend.CheckURL(*url)
+			found, _ := backend.Backend.LookupURL(*url)
 
 			backend.EConn.Publish(reply, found)
 		})
@@ -60,7 +60,7 @@ func TestRestCheck(t *testing.T) {
 
 	<-ready
 
-	dt := []schema.LURL{
+	dt := []schema.LookupURL{
 		{"a.b.c1", "bum"},
 		{"a.b.c2", "rum"},
 		{"a.b.c3", "bum"},
@@ -73,8 +73,8 @@ func TestRestCheck(t *testing.T) {
 	}
 
 	for _, d := range dt {
-		go func(u schema.LURL) {
-			found, _ := restc.CheckURL(u)
+		go func(u schema.LookupURL) {
+			found, _ := restc.LookupURL(u)
 			t.Log(u, found)
 		}(d)
 	}

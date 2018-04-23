@@ -2,6 +2,7 @@ package boltstore
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -22,6 +23,8 @@ type BoltStore struct {
 func (b *BoltStore) Open() {
 	var err error
 	b.Path, err = filepath.Abs(b.Filename)
+	dir := filepath.Dir(b.Path)
+	os.MkdirAll(dir, 0755)
 	log.Infof("OPEN db \"%s\", err: %v", b.Path, err)
 	b.Db, err = bolt.Open(b.Path, 0600, nil)
 	if err != nil {
@@ -34,7 +37,7 @@ func (b *BoltStore) Close() {
 	log.Infof("CLOSE db \"%s\", err: %v", b.Path, err)
 }
 
-func (b *BoltStore) AddURL(url *schema.LURL) (ok bool) {
+func (b *BoltStore) AddURL(url *schema.LookupURL) error {
 	log.Infof("ADD URL %+v", url)
 	if err := b.Db.Update(func(tx *bolt.Tx) error {
 		bkt, err := tx.CreateBucketIfNotExists([]byte(url.Host))
@@ -47,13 +50,13 @@ func (b *BoltStore) AddURL(url *schema.LURL) (ok bool) {
 		}
 		return nil
 	}); err != nil {
-		log.Errorf("REMOVE URL %+v, err %v", url, err)
-		return false
+		log.Errorf("ADD URL %+v, err %v", url, err)
+		return err
 	}
-	return true
+	return nil
 }
 
-func (b *BoltStore) RemoveURL(url *schema.LURL) (ok bool) {
+func (b *BoltStore) RemoveURL(url *schema.LookupURL) error {
 	log.Infof("REMOVE URL %+v", url)
 
 	if err := b.Db.Update(func(tx *bolt.Tx) error {
@@ -71,15 +74,32 @@ func (b *BoltStore) RemoveURL(url *schema.LURL) (ok bool) {
 		return err
 	}); err != nil {
 		log.Errorf("REMOVE URL %+v, err %v", url, err)
-		return false
+		return err
 	}
-	return true
+	return nil
+}
+
+func (b *BoltStore) UpdateURL(url schema.UpdLookupURL) error {
+	log.Infof("Update Url, %v", url)
+	switch url.Operation {
+	case "+":
+		return b.AddURL(&url.LookupURL)
+	case "-":
+		return b.RemoveURL(&url.LookupURL)
+	default:
+		return fmt.Errorf("invalid operation %s", url.Operation)
+	}
+}
+
+func (b *BoltStore) UpdateURLs(url []schema.UpdLookupURL) error {
+	return fmt.Errorf("Not implemented")
 }
 
 // retrieve the data
-func (b *BoltStore) LookupURL(url *schema.LURL) (res bool) {
+func (b *BoltStore) LookupURL(url schema.LookupURL) (bool, error) {
 
 	log.Infof("LOOKUP URL %+v", url)
+	var res bool
 	err := b.Db.View(func(tx *bolt.Tx) error {
 		bkt := tx.Bucket([]byte(url.Host))
 		if bkt == nil {
@@ -94,7 +114,7 @@ func (b *BoltStore) LookupURL(url *schema.LURL) (res bool) {
 	if err != nil {
 		log.Error(err)
 	}
-	return
+	return res, err
 }
 
 func recPrint(tx *bolt.Tx, c *bolt.Cursor, indent int) {

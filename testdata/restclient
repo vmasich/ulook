@@ -3,8 +3,67 @@
 :basee=localhost:3333
 
 #
-:hostt=a.b.c7
-:patht=bbljldfsfds'?a=1
+# :hostt=a.b.c7
+# :patht=bbljldfsfds?a=1
+:hostt=1.1.1.7
+:patht=bbljldfsfds?a=1
 GET http://:basee/urlinfo/1/:hostt/:patht
 #
+
+
+#
+:hostt=a.b.c7
+:patht=bbljldfsfds'?a=1
+POST http://:basee/urlinfo/bulkupdate
+Content-Type: application/json
+[
+    {
+        "op": "+",
+        "h": "abc",
+        "pq": "tadam"
+    },
+    {
+        "op": "+",
+        "h": "a.b.c",
+        "pq": "tadam"
+    },
+    {
+        "op": "+",
+        "h": "a.b.c1",
+        "pq": "tadam"
+    },
+    {
+        "op": "+",
+        "h": "a.b.c2",
+        "pq": "tadam"
+    },
+    {
+        "op": "+",
+        "h": "a.b-c",
+        "pq": "tadam"
+    },
+    {
+        "op": "+",
+        "h": "a.b.c7",
+        "pq": "bbljldfsfds?a=1"
+    },
+    {
+        "op": "+",
+        "h": "1.1.1.7",
+        "pq": "bbljldfsfds?a=1"
+    },
+    {
+        "op": "+",
+        "h": "1.1.1.8",
+        "pq": "bbljldfsfds?a"
+    },
+    {
+        "op": "+",
+        "h": "1.1.1.8:200",
+        "pq": "bbljldfsfds?a"
+    }
+]
+
+#
+
 

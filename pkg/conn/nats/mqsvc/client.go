@@ -1,13 +1,13 @@
 package mqsvc
 
 import (
+	"fmt"
 	"time"
 
 	"bitbucket.org/vmasych/urllookup/pkg/model"
 	"bitbucket.org/vmasych/urllookup/pkg/schema"
 	"github.com/coreos/pkg/capnslog"
 	"github.com/nats-io/nats"
-	pretty "github.com/tonnerre/golang-pretty"
 )
 
 var log = capnslog.NewPackageLogger(
@@ -32,9 +32,14 @@ func (n *Nats) ConnectRest() (err error) {
 
 func (n *Nats) ConnectStore(store model.Operations) (err error) {
 	n.Backend = store
+	log.Infof("%# v", n)
+
 	conn, err := nats.Connect(n.URL)
+	if err != nil {
+		return err
+	}
 	n.EConn, err = nats.NewEncodedConn(conn, "json")
-	log.Infof("*** NATS - STORE connnected, %# v", pretty.Formatter(n.Backend))
+	log.Infof("*** NATS - STORE connnected, %# v", n.Backend)
 	return err
 }
 
@@ -43,12 +48,27 @@ func (n *Nats) Close() (err error) {
 	return
 }
 
-func (n *Nats) UpdateURLs(urls []schema.UpdateURL) error {
-	log.Infof("*** NATS UpdateUrls %# v", pretty.Formatter(urls))
+func (n *Nats) UpdateURL(url schema.UpdLookupURL) error {
+	return fmt.Errorf("Not implemented")
+}
+
+func (n *Nats) UpdateURLs(urls []schema.UpdLookupURL) error {
+	subj := "update"
+	for _, uu := range urls {
+		log.Infof("*** NATS UpdateUrl %v", uu)
+		var resp bool
+		err := n.EConn.Request(subj, uu, &resp, 100*time.Millisecond)
+		if err != nil {
+			if n.EConn.LastError() != nil {
+				log.Errorf("Request: %v\n", n.EConn.LastError())
+			}
+			log.Errorf("update request: %v", err)
+		}
+	}
 	return nil
 }
 
-func (n *Nats) CheckURL(url schema.LURL) (resp bool, err error) {
+func (n *Nats) LookupURL(url schema.LookupURL) (resp bool, err error) {
 
 	subj := "lookup"
 	err = n.EConn.Request(subj, url, &resp, 100*time.Millisecond)
@@ -57,7 +77,7 @@ func (n *Nats) CheckURL(url schema.LURL) (resp bool, err error) {
 		if n.EConn.LastError() != nil {
 			log.Errorf("Request: %v\n", n.EConn.LastError())
 		}
-		log.Errorf("Error in Request: %v\n", err)
+		log.Errorf("lookup request: %v", err)
 	}
 
 	// log.Infof("Published [%s] : '%s'\n", subj, payload)

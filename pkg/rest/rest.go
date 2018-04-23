@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"fmt"
 	"net/http"
 
 	"bitbucket.org/vmasych/urllookup/pkg/model"
@@ -35,14 +36,20 @@ func (r *Rest) Run() {
 }
 
 func (r *Rest) CheckURL(c *gin.Context) {
-	url := schema.LURL{
+
+	path := c.Param("pathquery")
+	query := c.Request.URL.RawQuery
+
+	url := schema.LookupURL{
 		Host:      c.Param("hostport"),
-		PathQuery: c.Param("pathquery"),
+		PathQuery: fmt.Sprintf("%s?%s", path, query),
 	}
+
+	log.Infof("url: %v, %v", url, query)
 	code := http.StatusNotFound
 	msg := ""
 
-	ok, err := r.Model.CheckURL(url)
+	ok, err := r.Model.LookupURL(url)
 	if ok {
 		code = http.StatusOK
 	}
@@ -55,9 +62,9 @@ func (r *Rest) CheckURL(c *gin.Context) {
 }
 
 func (r *Rest) UpdateURLs(c *gin.Context) {
-	payload := []schema.UpdateURL{}
+	payload := []schema.UpdLookupURL{}
 	if err := c.BindJSON(&payload); err != nil {
-		c.String(http.StatusBadRequest, "")
+		c.String(http.StatusBadRequest, err.Error())
 		log.Errorf("%v", err)
 		return
 	}

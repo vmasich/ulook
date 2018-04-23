@@ -51,13 +51,13 @@ func TestUpdate(t *testing.T) {
 	//	t.Skip()
 	td := []struct {
 		status int
-		data   []schema.UpdateURL
+		data   []schema.UpdLookupURL
 	}{
 		{
-			200, []schema.UpdateURL{
-				{"+", schema.LURL{"a", "b"}},
-				{"+", schema.LURL{"c", "d"}},
-				{"-", schema.LURL{"l", "u"}},
+			200, []schema.UpdLookupURL{
+				{"+", schema.LookupURL{"a", "b"}},
+				{"+", schema.LookupURL{"c", "d"}},
+				{"-", schema.LookupURL{"l", "u"}},
 			},
 		},
 	}

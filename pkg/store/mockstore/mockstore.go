@@ -12,8 +12,8 @@ var log = capnslog.NewPackageLogger(
 type MockStore struct {
 }
 
-func (s *MockStore) CheckURL(url schema.LURL) (bool, error) {
-	log.Debugf("CheckUrl %# v", url)
+func (s *MockStore) CheckURL(url schema.LookupURL) (bool, error) {
+	log.Infof("CheckUrl %# v", url)
 	switch url.Host {
 	case "a", "a.b.c8":
 		return true, nil
@@ -21,8 +21,13 @@ func (s *MockStore) CheckURL(url schema.LURL) (bool, error) {
 	return false, nil
 }
 
-func (s *MockStore) UpdateURLs(urls []schema.UpdateURL) error {
-	log.Debugf("*** UpdateUrls %# v", pretty.Formatter(urls))
+func (s *MockStore) UpdateURLs(urls []schema.UpdLookupURL) error {
+	log.Infof("*** UpdateUrls %# v", pretty.Formatter(urls))
+	return nil
+}
+
+func (s *MockStore) UpdateURL(url schema.UpdLookupURL) error {
+	log.Infof("*** UpdateUrl %# v", pretty.Formatter(url))
 	return nil
 }
 

@@ -1,1 +1,2 @@
 NatsURL = "nats://nats:4222"
+DbFileName = "db/dbstore.db"
