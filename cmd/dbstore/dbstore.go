@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"os"
 	"os/signal"
 
@@ -15,7 +16,10 @@ var log = capnslog.NewPackageLogger(
 	"bitbucket.org/vmasych/urllookup/cmd/dbstore/main", "dbstore")
 
 func main() {
-	//	db := &mockstore.MockStore{}
+	pairPtr := flag.String("filter", "\x00\xff", "DB shariding filter range")
+	flag.Parse()
+
+	filter := NewFilterPair(*pairPtr)
 	db := &boltstore.BoltStore{
 		Filename: config.Get().DbFileName,
 	}
@@ -31,9 +35,12 @@ func main() {
 	signal.Notify(quit, os.Interrupt)
 
 	go func() {
-		i := 0
 		backc.EConn.Subscribe("lookup", func(subj, reply string, url *schema.LookupURL) {
-			i++
+
+			if !filter.Match(url.Host) {
+				return
+			}
+
 			found, err := backc.Backend.LookupURL(*url)
 			if err != nil {
 				log.Errorf("backend: %v", err)
@@ -49,9 +56,11 @@ func main() {
 	}()
 
 	go func() {
-		i := 0
 		backc.EConn.Subscribe("update", func(subj, reply string, url *schema.UpdLookupURL) {
-			i++
+			if !filter.Match(url.Host) {
+				return
+			}
+
 			err := backc.Backend.UpdateURL(*url)
 			if err != nil {
 				log.Errorf("backend: %v", err)
@@ -67,4 +76,34 @@ func main() {
 	}()
 
 	<-quit
+}
+
+type FilterPair struct {
+	EqOrBigger byte
+	Less       byte
+}
+
+func NewFilterPair(pair string) *FilterPair {
+
+	if len(pair) != 2 {
+		log.Fatal("invalid filter pair, %s", pair)
+	}
+	f := &FilterPair{
+		EqOrBigger: pair[0],
+		Less:       pair[1],
+	}
+	log.Infof("accepted host name range: '%c'(%X)* >= HOSTNAME < '%c'(%X)*",
+		f.EqOrBigger, f.EqOrBigger, f.Less, f.Less)
+	return f
+}
+
+func (fp *FilterPair) Match(str string) bool {
+	if len(str) == 0 {
+		return false
+	}
+	ch := str[0]
+	if ch >= fp.EqOrBigger && ch < fp.Less {
+		return true
+	}
+	return false
 }

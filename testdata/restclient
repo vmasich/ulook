@@ -5,8 +5,8 @@
 #
 # :hostt=a.b.c7
 # :patht=bbljldfsfds?a=1
-:hostt=1.1.1.7
-:patht=bbljldfsfds?a=1
+:hostt=z.b.c
+:patht=tadam
 GET http://:basee/urlinfo/1/:hostt/:patht
 #
 
@@ -44,6 +44,11 @@ Content-Type: application/json
     },
     {
         "op": "+",
+        "h": "z.b.c",
+        "pq": "tadam"
+    },
+		{
+        "op": "+",
         "h": "a.b.c7",
         "pq": "bbljldfsfds?a=1"
     },
@@ -57,7 +62,34 @@ Content-Type: application/json
         "h": "1.1.1.8",
         "pq": "bbljldfsfds?a"
     },
+
     {
+        "op": "+",
+        "h": "so.b-c",
+        "pq": "tadam"
+    },
+    {
+        "op": "+",
+        "h": "z.b.c",
+        "pq": "tadam"
+    },
+		{
+        "op": "+",
+        "h": "ram.b.c7",
+        "pq": "bbljldfsfds?a=1"
+    },
+    {
+        "op": "+",
+        "h": "zum.ba.ul",
+        "pq": "bbljldfsfds?a=1"
+    },
+    {
+        "op": "+",
+        "h": "variable.host",
+        "pq": "bbljldfsfds?a"
+    },
+
+{
         "op": "+",
         "h": "1.1.1.8:200",
         "pq": "bbljldfsfds?a"

@@ -39,8 +39,15 @@ arriving every 10 minutes.
 ## Usage
 ```sh
 docker network create mynet
+docker volume create store1
+docker volume create store2
+
 docker run --rm  --net mynet --name nats  nats
-docker run --rm  --net mynet --name dbstore urllookup /dbstore
+
+docker run --rm  --net mynet -v store1:/db --name dbstore1 urllookup /dbstore -filter="0m"
+
+docker run --rm  --net mynet -v store2:/db --name dbstore2 urllookup /dbstore -filter="m~"
+
 docker run --rm  -p 3333:3333 --net mynet --name restapi urllookup /restapi
 ```
 

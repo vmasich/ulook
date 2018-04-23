@@ -1,7 +1,6 @@
 package rest
 
 import (
-	"fmt"
 	"net/http"
 
 	"bitbucket.org/vmasych/urllookup/pkg/model"
@@ -39,10 +38,12 @@ func (r *Rest) CheckURL(c *gin.Context) {
 
 	path := c.Param("pathquery")
 	query := c.Request.URL.RawQuery
-
+	if len(query) > 0 {
+		path = path + "?" + query
+	}
 	url := schema.LookupURL{
 		Host:      c.Param("hostport"),
-		PathQuery: fmt.Sprintf("%s?%s", path, query),
+		PathQuery: path,
 	}
 
 	log.Infof("url: %v, %v", url, query)

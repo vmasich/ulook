@@ -1,2 +1,2 @@
 NatsURL = "nats://localhost:4222"
-DbFileName = "dbstore.db"
+DbFileName = "db/dbstore.db"
