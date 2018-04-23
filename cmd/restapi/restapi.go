@@ -4,10 +4,10 @@ import (
 	"os"
 	"os/signal"
 
+	"bitbucket.org/vmasych/urllookup/pkg/config"
 	"bitbucket.org/vmasych/urllookup/pkg/conn/nats/mqsvc"
 	"bitbucket.org/vmasych/urllookup/pkg/rest"
 	"github.com/coreos/pkg/capnslog"
-	"github.com/nats-io/nats"
 )
 
 var log = capnslog.NewPackageLogger(
@@ -20,7 +20,7 @@ func main() {
 	// db := &mockstore.MockStore{}
 	// db.Open()
 	restc := &mqsvc.Nats{
-		URL: nats.DefaultURL,
+		URL: config.Get().NatsURL,
 	}
 
 	if err := restc.ConnectRest(); err != nil {

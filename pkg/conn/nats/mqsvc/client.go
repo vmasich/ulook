@@ -25,7 +25,7 @@ func (n *Nats) ConnectRest() (err error) {
 		return
 	}
 	n.EConn, err = nats.NewEncodedConn(conn, "json")
-	log.Infof("*** NATS - API connected ")
+	log.Infof("*** NATS - API connected, URL: %s", n.URL)
 
 	return err
 }

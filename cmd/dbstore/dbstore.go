@@ -4,11 +4,11 @@ import (
 	"os"
 	"os/signal"
 
+	"bitbucket.org/vmasych/urllookup/pkg/config"
 	"bitbucket.org/vmasych/urllookup/pkg/conn/nats/mqsvc"
 	"bitbucket.org/vmasych/urllookup/pkg/schema"
 	"bitbucket.org/vmasych/urllookup/pkg/store/mockstore"
 	"github.com/coreos/pkg/capnslog"
-	"github.com/nats-io/nats"
 )
 
 var log = capnslog.NewPackageLogger(
@@ -18,7 +18,7 @@ func main() {
 	db := &mockstore.MockStore{}
 	db.Open()
 	backc := &mqsvc.Nats{
-		URL: nats.DefaultURL,
+		URL: config.Get().NatsURL,
 	}
 	if err := backc.ConnectStore(db); err != nil {
 		log.Fatalf("cannot connect to NATS, %v", err)

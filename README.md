@@ -12,7 +12,7 @@ responds to GET requests where the caller passes in a URL and the
 service responds with some information about that URL. The GET
 requests look like this:
 
-```
+```sh
 GET /urlinfo/1/{hostname_and_port}/{original_path_and_query_string}
 ```
 
@@ -123,7 +123,7 @@ be replicated, split, or merged.  the current max size of the node is
 ## API Reference
 
 ### URL Lookup
-```
+```sh
 GET /urlinfo/1/:hostname/:path
 ```
 #### Parameters
@@ -149,7 +149,7 @@ HTTP status codes
 - There is no Response Body to reduce apount of data transferred
 
 ### Bulk URL update
-```
+```sh
 POST /urlinfo/bulkupdate
 ```
 #### Parameters
