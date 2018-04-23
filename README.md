@@ -153,7 +153,7 @@ HTTP status codes
 
 504: Timeout
 
-- There is no Response Body to reduce apount of data transferred
+- There is no Response Body to reduce amount of data transferred
 
 ### Bulk URL update
 ```sh
@@ -163,6 +163,23 @@ POST /urlinfo/bulkupdate
 
 None
 
+#### Headers
+
+```sh
+Content-Type: application/json
+```
 #### Payload example
-
-
+```json
+[
+    {
+        "op": "+",
+        "h": "abc.u",
+        "pq": "tadam?r=2"
+    },
+    {
+        "op": "+",
+        "h": "pvc.b.c",
+        "pq": "tadam"
+    },
+]
+```
