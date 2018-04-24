@@ -37,18 +37,22 @@ URLs? Updates may be as much as 5 thousand URLs a day with updates
 arriving every 10 minutes.
 
 ## Usage
+
+The example storage cluster consists of 2 nodes.
+More can be added - need to create volumes and assign sharding filter ranges.
+
 ```sh
 docker network create mynet
 docker volume create store1
 docker volume create store2
 
-docker run --rm  --net mynet --name nats  nats
+docker run --rm  -d --net mynet --name nats  nats
 
-docker run --rm  --net mynet -v store1:/db --name dbstore1 urllookup /dbstore -filter="0m"
+docker run --rm -d  --net mynet -v store1:/db --name dbstore1 urllookup /dbstore -filter="0m"
 
-docker run --rm  --net mynet -v store2:/db --name dbstore2 urllookup /dbstore -filter="m~"
+docker run --rm -d  --net mynet -v store2:/db --name dbstore2 urllookup /dbstore -filter="m~"
 
-docker run --rm  -p 3333:3333 --net mynet --name restapi urllookup /restapi
+docker run --rm -d -p 3333:3333 --net mynet --name restapi urllookup /restapi
 ```
 
 
@@ -82,25 +86,26 @@ The good candidates can be DynamoDB, Dgraph, CockroachDB, Cassandra,
 etc.
 
 However implementing something from scratch is a fun - and it is not
-that complex!
+that complex.
 
 ### The intended setup:
 
-*HTTP REST frontend* should be run as a multiple instances, depending
+**HTTP REST frontend** should be run as a multiple instances, depending
  on requirements behind Load Balancer ( Kubernetes, NGNX, AWS Elastic
  LB, etc. )
 
-*NATS messaging* system should be run as a clustered setup on the low
+**NATS messaging** system should be run as a clustered setup on the low
  latency network
 
-*Boltstore* instances should be run as a sharded setup. each instance
-serves a range of URLs , defined as a range or a pattern, i.e. for 2
-instances [0-k] for the first, [l-zZ]* for the second. In production
-implementation the filters can be adaptive, the data on the nodes can
-be replicated, split, or merged.  the current max size of the node is
-1TB
+**Boltstore** instances should be run as a sharded setup with multiple
+nodes. Each instance serves a range of URLs , defined as a range (in
+current very simple implementation), i.e. for 2 store nodes [0k] for
+the first, [k~]* for the second store node. In production
+implementation of the filters can be adaptive, the data on the nodes
+can be replicated, migrated, split, or merged.  The current max size
+of the node is 1TB.
 
-- The implemented architecture is horizontally scalable and addresses
+- The implemented architecture is easily horizontally scalable and addresses
   pp. 1 and 2 in the problem statement.
 
 - It is designed with a potential for the future
@@ -117,14 +122,14 @@ be replicated, split, or merged.  the current max size of the node is
 - Another optimization should be implemented in the Data
   Store. Current internal structure is flat, so buckets are in the
   same level, the optimized implementation will use hierarchical
-  structure with nested buckets, following the Domain Names levels. It
-  will speed up the lookups. It is not implemented because current
-  implementation is already beyond the scope of this "staightforward"
-  exersize.
+  structure with nested buckets, following the Domain Names levels and
+  path components. It will speed up the lookups. It is not implemented
+  because current implementation complexity is already beyond the scope of this
+  "staightforward" exersize.
 
 - To address pp. 3 in the problem statement, the REST API supports
-  bulk URL updates.  However 5000 URL a day  sounds too little -
-  may be 5000 per request?
+  bulk URL updates. JSON is used for the simplicity, CSV will be more efficient.
+	However 5000 URL a day  sounds too little -  may be 5000 per request?
 
 
 ## API Reference
@@ -168,7 +173,11 @@ None
 ```sh
 Content-Type: application/json
 ```
-#### Payload example
+#### Payload
+
+Used JSON for the siplicity of implementation. CSV will be more efficient
+
+- example
 ```json
 [
     {
