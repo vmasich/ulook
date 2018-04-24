@@ -12,11 +12,15 @@ var log = capnslog.NewPackageLogger(
 type MockStore struct {
 }
 
-func (s *MockStore) CheckURL(url schema.LookupURL) (bool, error) {
+func (s *MockStore) LookupURL(url schema.LookupURL) (bool, error) {
 	log.Infof("CheckUrl %# v", url)
 	switch url.Host {
-	case "a", "a.b.c8":
-		return true, nil
+	case "a:80", "a", "a.b.c8":
+		switch url.PathQuery {
+		case "u/a/b/c", "b":
+			return true, nil
+		}
+		return false, nil
 	}
 	return false, nil
 }

@@ -31,7 +31,7 @@ func TestLookupUrl(t *testing.T) {
 		{"a.b.c", "buc"},
 	}
 	for _, d := range dt {
-		found, _ := db.CheckURL(d)
+		found, _ := db.LookupURL(d)
 		t.Log(found)
 	}
 }

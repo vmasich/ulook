@@ -2,13 +2,11 @@ package rest
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"testing"
 
-	"bitbucket.org/vmasych/urllookup/pkg/schema"
 	"bitbucket.org/vmasych/urllookup/pkg/store/mockstore"
 	"github.com/stretchr/testify/assert"
 )
@@ -29,51 +27,60 @@ func TestRest(t *testing.T) {
 func TestInfo(t *testing.T) {
 	td := []struct {
 		status int
-		host   string
-		path   string
+		hpq    string
 	}{
-		{200, "a", "b"},
-		{404, "c", "d"},
+		{200, "a/b"},
+		{404, "a"},
+		{404, ""},
+		{200, "a:80/u/a/b/c"},
+		{404, "c/d"},
 	}
+	a := assert.New(t)
 	for i, d := range td {
-		resp, err := http.Get(fmt.Sprintf("%s/urlinfo/1/%s/%s", baseUrl, d.host, d.path))
-		assert.NoError(t, err)
+		resp, err := http.Get(fmt.Sprintf("%s/urlinfo/1/%s", baseUrl, d.hpq))
+		a.NoError(err)
 		_, err = ioutil.ReadAll(resp.Body)
 		resp.Body.Close()
 		if err != nil {
 			t.Fatal(err)
 		}
+		a.Equal(d.status, resp.StatusCode, d.hpq)
 		t.Logf("+++ %d, %+v, %d", i, d, resp.StatusCode)
 	}
 }
 
 func TestUpdate(t *testing.T) {
 	//	t.Skip()
+	a := assert.New(t)
 	td := []struct {
 		status int
-		data   []schema.UpdLookupURL
+		data   string
 	}{
 		{
-			200, []schema.UpdLookupURL{
-				{"+", schema.LookupURL{"a", "b"}},
-				{"+", schema.LookupURL{"c", "d"}},
-				{"-", schema.LookupURL{"l", "u"}},
-			},
+			200, `[["+","a/b"],["+","c/d"],["-","l/u/a/b/c"]]`,
+		},
+		{
+			200, `[["+"],["+","c/d", "u"],["-","l/u/a/b/c"]]`,
+		},
+		{
+			400, `[["+","a":"a"],["+","c/d"],["-","l/u/a/b/c"]]`,
 		},
 	}
 	for i, d := range td {
-		body, err := json.Marshal(d.data)
+		//		body, err := json.Marshal(d.data)
+
+		body := []byte(d.data)
+
 		resp, err := http.Post(
 			fmt.Sprintf("%s/urlinfo/bulkupdate", baseUrl),
 			"application/json",
 			bytes.NewBuffer(body),
 		)
-		assert.NoError(t, err)
+		a.NoError(err)
 		_, err = ioutil.ReadAll(resp.Body)
 		resp.Body.Close()
-		if err != nil {
-			t.Fatal(err)
-		}
+		a.NoError(err)
+		a.Equal(d.status, resp.StatusCode)
 		t.Logf("+++ %d, %+v, %d", i, string(body), resp.StatusCode)
 	}
 }

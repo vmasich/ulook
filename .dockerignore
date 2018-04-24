@@ -1,0 +1,9 @@
+.git
+dbstore
+dbstore.db
+config.toml
+README.md
+cmd
+db
+pkg
+testdata

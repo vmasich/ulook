@@ -2,6 +2,7 @@ package rest
 
 import (
 	"net/http"
+	"strings"
 
 	"bitbucket.org/vmasych/urllookup/pkg/model"
 	"bitbucket.org/vmasych/urllookup/pkg/schema"
@@ -24,7 +25,7 @@ func New(m model.Operations) *Rest {
 
 	v1 := rest.Eng.Group("urlinfo/")
 
-	v1.GET("1/:hostport/:pathquery", rest.CheckURL)
+	v1.GET("1/*hostpathquery", rest.CheckURL)
 	v1.POST("bulkupdate", rest.UpdateURLs)
 
 	return rest
@@ -36,13 +37,19 @@ func (r *Rest) Run() {
 
 func (r *Rest) CheckURL(c *gin.Context) {
 
-	path := c.Param("pathquery")
+	hpq := c.Param("hostpathquery")
+	arr := strings.Split(hpq, "/")
+
+	hostport := arr[1]
+	path := strings.Join(arr[2:], "/")
 	query := c.Request.URL.RawQuery
+
 	if len(query) > 0 {
 		path = path + "?" + query
 	}
+
 	url := schema.LookupURL{
-		Host:      c.Param("hostport"),
+		Host:      hostport,
 		PathQuery: path,
 	}
 
@@ -63,11 +70,13 @@ func (r *Rest) CheckURL(c *gin.Context) {
 }
 
 func (r *Rest) UpdateURLs(c *gin.Context) {
-	payload := []schema.UpdLookupURL{}
+	var payload schema.UpdatePayload
+
 	if err := c.BindJSON(&payload); err != nil {
 		c.String(http.StatusBadRequest, err.Error())
 		log.Errorf("%v", err)
 		return
 	}
-	r.Model.UpdateURLs(payload)
+
+	r.Model.UpdateURLs(payload.Transform())
 }

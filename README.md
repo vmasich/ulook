@@ -41,6 +41,9 @@ arriving every 10 minutes.
 The example storage cluster consists of 2 nodes.
 More can be added - need to create volumes and assign sharding filter ranges.
 
+- The following example can be run directly from dockerhub
+- The only requirement is docker installed on the computer 
+
 ```sh
 docker network create mynet
 docker volume create store1
@@ -48,13 +51,43 @@ docker volume create store2
 
 docker run --rm  -d --net mynet --name nats  nats
 
-docker run --rm -d  --net mynet -v store1:/db --name dbstore1 urllookup /dbstore -filter="0m"
+docker run --rm -d  --net mynet -v store1:/db --name dbstore1 vmasych/urllookup /dbstore -filter="0m"
 
-docker run --rm -d  --net mynet -v store2:/db --name dbstore2 urllookup /dbstore -filter="m~"
+docker run --rm -d  --net mynet -v store2:/db --name dbstore2 vmasych/urllookup /dbstore -filter="m~"
 
-docker run --rm -d -p 3333:3333 --net mynet --name restapi urllookup /restapi
+docker run --rm -d -p 3333:3333 --net mynet --name restapi vmasych/urllookup /restapi
 ```
 
+load data:
+```sh
+curl -i -k -X POST \
+ -d @- \
+ -H 'Content-Type: application/json' \
+ http://localhost:3333/urlinfo/bulkupdate <<'EOF'
+[
+[ "+", "abcj/tadam"],
+[ "+", "a.b.c/tadam/m/m/a/r?z=3"],
+[ "+", "a.b.c1/tadam"],
+[ "+", "a.b.c2/tadam"],
+[ "+", "a.b-c/tadam"],
+[ "+", "z.b.c/tadam"],
+[ "+", "a.b.c7/bbljldfsfds?a=1"],
+[ "+", "1.1.1.7/bbljldfsfds?a=1"],
+[ "+", "1.1.1.8/bbljldfsfds?a"],
+[ "+", "so.b-c/tadam"],
+[ "+", "z.b.c/tadam"],
+[ "+", "ram.b.c7/bbljldfsfds?a=1"],
+[ "+", "zum.ba.ul/bbljldfsfds?a=1"],
+[ "+", "variable.host/bbljldfsfds?a"],
+[ "+", "1.1.1.8:200/bbljldfsfds?a"]
+]
+EOF
+```
+lookup url:
+
+```sh
+curl -i localhost:3333/urlinfo/1/abcj/tadam
+```
 
 ## Architecture
 
@@ -175,20 +208,23 @@ Content-Type: application/json
 ```
 #### Payload
 
-Used JSON for the siplicity of implementation. CSV will be more efficient
+- first element is operation ("+" or "-"),
+- second is concatenation of host, path and query
 
 - example
 ```json
 [
-    {
-        "op": "+",
-        "h": "abc.u",
-        "pq": "tadam?r=2"
-    },
-    {
-        "op": "+",
-        "h": "pvc.b.c",
-        "pq": "tadam"
-    },
+    [ "+", "abcj/tadam"],
+    [ "+", "a.b.c/tadam/m/m/a/r?z=3"],
+    [ "+", "a.b.c1/tadam"],
+		[ "-", "1.1.1.8:200/bbljldfsfds?a"]
 ]
 ```
+
+HTTP status codes
+
+200: Success
+
+400: Error
+
+504: Timeout

@@ -3,97 +3,30 @@
 :basee=localhost:3333
 
 #
-# :hostt=a.b.c7
-# :patht=bbljldfsfds?a=1
-:hostt=z.b.c
-:patht=tadam
-GET http://:basee/urlinfo/1/:hostt/:patht
+:hpq=a.b.c/tadam/m/m/a/r?z=3
+GET http://:basee/urlinfo/1/:hpq
 #
 
 
 #
-:hostt=a.b.c7
-:patht=bbljldfsfds'?a=1
 POST http://:basee/urlinfo/bulkupdate
 Content-Type: application/json
 [
-    {
-        "op": "+",
-        "h": "abc",
-        "pq": "tadam"
-    },
-    {
-        "op": "+",
-        "h": "a.b.c",
-        "pq": "tadam"
-    },
-    {
-        "op": "+",
-        "h": "a.b.c1",
-        "pq": "tadam"
-    },
-    {
-        "op": "+",
-        "h": "a.b.c2",
-        "pq": "tadam"
-    },
-    {
-        "op": "+",
-        "h": "a.b-c",
-        "pq": "tadam"
-    },
-    {
-        "op": "+",
-        "h": "z.b.c",
-        "pq": "tadam"
-    },
-		{
-        "op": "+",
-        "h": "a.b.c7",
-        "pq": "bbljldfsfds?a=1"
-    },
-    {
-        "op": "+",
-        "h": "1.1.1.7",
-        "pq": "bbljldfsfds?a=1"
-    },
-    {
-        "op": "+",
-        "h": "1.1.1.8",
-        "pq": "bbljldfsfds?a"
-    },
-
-    {
-        "op": "+",
-        "h": "so.b-c",
-        "pq": "tadam"
-    },
-    {
-        "op": "+",
-        "h": "z.b.c",
-        "pq": "tadam"
-    },
-		{
-        "op": "+",
-        "h": "ram.b.c7",
-        "pq": "bbljldfsfds?a=1"
-    },
-    {
-        "op": "+",
-        "h": "zum.ba.ul",
-        "pq": "bbljldfsfds?a=1"
-    },
-    {
-        "op": "+",
-        "h": "variable.host",
-        "pq": "bbljldfsfds?a"
-    },
-
-{
-        "op": "+",
-        "h": "1.1.1.8:200",
-        "pq": "bbljldfsfds?a"
-    }
+    [ "+", "abcj/tadam"],
+    [ "+", "a.b.c/tadam/m/m/a/r?z=3"],
+    [ "+", "a.b.c1/tadam"],
+    [ "+", "a.b.c2/tadam"],
+    [ "+", "a.b-c/tadam"],
+    [ "+", "z.b.c/tadam"],
+		[ "+", "a.b.c7/bbljldfsfds?a=1"],
+    [ "+", "1.1.1.7/bbljldfsfds?a=1"],
+    [ "+", "1.1.1.8/bbljldfsfds?a"],
+    [ "+", "so.b-c/tadam"],
+    [ "+", "z.b.c/tadam"],
+		[ "+", "ram.b.c7/bbljldfsfds?a=1"],
+    [ "+", "zum.ba.ul/bbljldfsfds?a=1"],
+    [ "+", "variable.host/bbljldfsfds?a"],
+		[ "+", "1.1.1.8:200/bbljldfsfds?a"]
 ]
 
 #
