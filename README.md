@@ -23,14 +23,11 @@ until the caller receives a response from your service.
 
 The service must be containerized.
 
-Give some thought to the following:
-
 1. The size of the URL list could grow infinitely, how might you
 scale this beyond the memory capacity of this VM? Bonus if you
 implement this.
 
-2. The number of requests may exceed the capacity of this VM, how might
-you solve that? Bonus if you implement this.
+2. The number of requests may exceed the capacity of this VM.
 
 3. What are some strategies you might use to update the service with new
 URLs? Updates may be as much as 5 thousand URLs a day with updates
